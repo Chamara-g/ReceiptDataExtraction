@@ -9,7 +9,7 @@ from google.cloud import vision
 from PIL import Image, ImageDraw
 # 530516 551791 551838.PNG
 GOOGLE_API_KEY = "F:/project/CNN_test/data/google_cloud_api_key.txt"
-IMG_FILE = "F:/project/CNN_test/data/receipts/vertical/530324"
+IMG_FILE = "F:/project/CNN_test/data/receipts/3/crop/hard/537673.png"
 
 # Provide authentication credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_API_KEY
@@ -24,7 +24,7 @@ def detect_words(path):
 
     response = client.text_detection(image=image)
     texts = response.text_annotations
-    
+
     momsList = searchMoms(texts)
 
     if( len(momsList) == 0 or not momsList ):
@@ -73,7 +73,7 @@ def searchMoms(texts):
     momsList = []
     for text in texts:
         # print(text.description)
-        if (text.description == "MOMS" or text.description == "Moms" or text.description == "moms" or text.description == "Mom"):
+        if (text.description == "MOMS" or text.description == "Moms" or text.description == "moms" or text.description == "Mom" or text.description == "Belopp"):
             momsList.append(text)
     return momsList
 
@@ -137,6 +137,14 @@ def vatFilter(word):
         valid = False
     return valid
 
+def precentageFilter(word):
+    valid = True
+    if(len(word)==1):
+        valid = False
+    elif( word == 'MOMS'):
+        valid = False
+    return valid
+
 def percentage_and_vat_filter(texts, most_prob_vat_values):
     tempLeft = 0
     value = ''
@@ -158,7 +166,7 @@ def percentage_and_vat_filter(texts, most_prob_vat_values):
             TopRight = ( boundry.vertices[2].x, boundry.vertices[2].y )
             TopLeft = ( boundry.vertices[3].x, boundry.vertices[3].y ) 
                 
-            if( (TopRight[1] - 8 <= vatValueBoundry.vertices[2].y) and (BottomRight[1] + 8 >= vatValueBoundry.vertices[1].y) and vatFilter(text.description) ):
+            if( (TopRight[1] - 8 <= vatValueBoundry.vertices[2].y) and (BottomRight[1] + 8 >= vatValueBoundry.vertices[1].y) and precentageFilter(text.description) ):
                 print(text.description)   
                 if( tempLeft == 0 ):
                     tempLeft = TopLeft[0]
