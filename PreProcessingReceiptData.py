@@ -9,7 +9,7 @@ from google.cloud import vision
 from PIL import Image, ImageDraw
 # 530516 551791 551838.PNG
 GOOGLE_API_KEY = "F:/project/CNN_test/data/google_cloud_api_key.txt"
-IMG_FILE = "F:/project/CNN_test/data/receipts/4/crop/532659.png"
+IMG_FILE = "F:/project/CNN_test/data/receipts/4/crop/534727.png"
 
 # Provide authentication credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_API_KEY
@@ -27,20 +27,36 @@ def detect_words(path):
 
     momsList = searchMoms(texts)
 
+    vat_value_col = []
+    precentage_value_col = []
+
+    result_vat = []
+    result_precentage = []
+
     if( len(momsList) == 0 or not momsList ):
         print('havent moms values')
     else:    
         vat_value_list,precentage_value_list = extract_vat_and_precentage(momsList,texts)
         
-        if( len(vat_value_list) == 1):
-            print(vat_value_list)
-            print(precentage_value_list)
+        if( len(vat_value_list) == 1 and vat_value_list == precentage_value_list):
+            print('+len(vat_value_list)(1)')
+            vat_value_col = vat_value_list
+            precentage_value_col = precentage_value_list
         else:
             for i in range(0,len(vat_value_list)):
-                if( vat_value_list[i] != precentage_value_list[i] ):
-                    print(vat_value_list[i])
-                    print(precentage_value_list[i])        
-        
+                if( vat_value_list[i] != precentage_value_list[i] ):       
+                    vat_value_col = vat_value_list[i]
+                    precentage_value_col = precentage_value_list[i]
+
+        for i in range(0,len(vat_value_col)):
+            if( precentage_value_col[i] == 'Tot' or precentage_value_col[i] == 'Total' or precentage_value_col[i] == 'TOTAL'):
+                print('+')
+            else:
+                print(precentage_value_col[i])
+                result_vat.append(vat_value_col[i])
+                result_precentage.append(precentage_value_col[i])
+        print(result_vat)
+        print(result_precentage)
 
 def extract_vat_and_precentage(momsList,texts):
     vat_value_list = []
@@ -175,7 +191,7 @@ def percentage_and_vat_filter(texts, most_prob_vat_values):
         tempLeft = 0
         value = ''
                         
-        print(vatValue.description)
+        # print(vatValue.description)
         for text in texts:
             boundry = text.bounding_poly
 
@@ -185,7 +201,7 @@ def percentage_and_vat_filter(texts, most_prob_vat_values):
             TopLeft = ( boundry.vertices[3].x, boundry.vertices[3].y ) 
                 
             if( (TopRight[1] - 8 <= vatValueBoundry.vertices[2].y) and (BottomRight[1] + 8 >= vatValueBoundry.vertices[1].y) and precentageFilter(text.description) ):
-                print(text.description)   
+                # print(text.description)   
                 if( tempLeft == 0 ):
                     tempLeft = TopLeft[0]
                     value = text.description
