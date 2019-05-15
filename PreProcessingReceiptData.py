@@ -9,7 +9,7 @@ from google.cloud import vision
 from PIL import Image, ImageDraw
 # 530516 551791 551838.PNG
 GOOGLE_API_KEY = "F:/project/CNN_test/data/google_cloud_api_key.txt"
-IMG_FILE = "F:/project/CNN_test/data/receipts/3/crop/hard/537673.png"
+IMG_FILE = "F:/project/CNN_test/data/receipts/4/crop/532659.png"
 
 # Provide authentication credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_API_KEY
@@ -30,9 +30,22 @@ def detect_words(path):
     if( len(momsList) == 0 or not momsList ):
         print('havent moms values')
     else:    
-        extract_vat_and_precentage(momsList,texts)
+        vat_value_list,precentage_value_list = extract_vat_and_precentage(momsList,texts)
+        
+        if( len(vat_value_list) == 1):
+            print(vat_value_list)
+            print(precentage_value_list)
+        else:
+            for i in range(0,len(vat_value_list)):
+                if( vat_value_list[i] != precentage_value_list[i] ):
+                    print(vat_value_list[i])
+                    print(precentage_value_list[i])        
+        
 
 def extract_vat_and_precentage(momsList,texts):
+    vat_value_list = []
+    precentage_value_list = []
+
     for moms in momsList:
         print('-------start-------')
         moms = moms.bounding_poly
@@ -65,8 +78,12 @@ def extract_vat_and_precentage(momsList,texts):
                 vat_value,percentage_values = percentage_and_vat_filter(texts, most_prob_vat_values)
                 print("percentage_values len " + "{}".format(len(percentage_values)) )
 
-                print(vat_value)
-                print(percentage_values)    
+                # print(vat_value)
+                # print(percentage_values)    
+                vat_value_list.append(vat_value)
+                precentage_value_list.append(percentage_values)
+
+    return vat_value_list,precentage_value_list            
 
 # search moms word in receipt
 def searchMoms(texts):
@@ -102,7 +119,8 @@ def find_near_by_values(topLeft, verticalWordList):
     
     most_prob_vat_values = []
     
-    if( margin >= 30):
+    if( margin >= 40):
+        print(margin)
         print('+margin not valid')
     else:
         for vatValue in verticalWordList:
