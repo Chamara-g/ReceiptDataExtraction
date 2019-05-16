@@ -116,7 +116,7 @@ def searchMoms(texts):
     momsList = []
     for text in texts:
         # print(text.description)
-        if ( re.search( r'(m|n|r)o(m|n|r)s', text.description, re.I) or text.description == "Belopp"):
+        if ( re.search( r'(m|n|r)o(m|n|r)s', text.description, re.I) or re.search( r'(Belopp)', text.description, re.I) ):
             momsList.append(text)
     return momsList
 
