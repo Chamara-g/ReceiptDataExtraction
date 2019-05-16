@@ -1,6 +1,8 @@
 import io
 import os
 
+import re
+
 import json
 
 from google.cloud.vision import types
@@ -102,11 +104,19 @@ def extract_vat_and_precentage(momsList,texts):
     return vat_value_list,precentage_value_list            
 
 # search moms word in receipt
+# def searchMoms(texts):
+#     momsList = []
+#     for text in texts:
+#         # print(text.description)
+#         if (text.description == "MOMS" or text.description == "Moms" or text.description == "moms" or text.description == "Mom" or text.description == "Belopp"):
+#             momsList.append(text)
+#     return momsList
+
 def searchMoms(texts):
     momsList = []
     for text in texts:
         # print(text.description)
-        if (text.description == "MOMS" or text.description == "Moms" or text.description == "moms" or text.description == "Mom" or text.description == "Belopp"):
+        if ( re.search( r'(m|n|r)o(m|n|r)s', text.description, re.I) or text.description == "Belopp"):
             momsList.append(text)
     return momsList
 
