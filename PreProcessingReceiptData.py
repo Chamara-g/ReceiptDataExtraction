@@ -51,7 +51,7 @@ def detect_words(path):
                     precentage_value_col = precentage_value_list[i]
 
         for i in range(0,len(vat_value_col)):
-            if( precentage_value_col[i] == 'Tot' or precentage_value_col[i] == 'Total' or precentage_value_col[i] == 'TOTAL'):
+            if( re.search( r'(total)', precentage_value_col[i], re.I) or precentage_value_col[i] == 'Tot' ):
                 print('+')
             else:
                 print(precentage_value_col[i])
