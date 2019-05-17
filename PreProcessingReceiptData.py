@@ -11,7 +11,7 @@ from google.cloud import vision
 from PIL import Image, ImageDraw
 # 530516 551791 551838.PNG
 GOOGLE_API_KEY = "F:/project/CNN_test/data/google_cloud_api_key.txt"
-IMG_FILE = "F:/project/CNN_test/data/receipts/4/crop/534727.png"
+IMG_FILE = "F:/project/CNN_test/data/receipts/virtical/1 (27).png"
 
 # Provide authentication credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_API_KEY
@@ -36,6 +36,7 @@ def detect_words(path):
     result_precentage = []
 
     if( len(momsList) == 0 or not momsList ):
+        q=1
         print('havent moms values')
     else:    
         vat_value_list,precentage_value_list = extract_vat_and_precentage(momsList,texts)
@@ -51,6 +52,8 @@ def detect_words(path):
                     precentage_value_col = precentage_value_list[i]
 
         for i in range(0,len(vat_value_col)):
+            print("error")
+            print(precentage_value_col[i])
             if( re.search( r'(total)', precentage_value_col[i], re.I) or precentage_value_col[i] == 'Tot' ):
                 print('+')
             else:
@@ -58,7 +61,7 @@ def detect_words(path):
                 result_vat.append(vat_value_col[i])
                 result_precentage.append(precentage_value_col[i])
         print(result_vat)
-        print(result_precentage)
+        print(result_precentage)   
 
 def extract_vat_and_precentage(momsList,texts):
     vat_value_list = []
@@ -82,7 +85,7 @@ def extract_vat_and_precentage(momsList,texts):
         print("verticalWordList len " + "{}".format(len(verticalWordList)) )
         
         if( len(verticalWordList) == 0 ):
-            print('+havent vertical values')
+           print('+havent vertical values')
         else:    
             sortVerticalList = sort_list(verticalWordList)
             print('sort')
@@ -91,6 +94,7 @@ def extract_vat_and_precentage(momsList,texts):
             print("most_prob_vat_values len " + "{}".format(len(most_prob_vat_values)) )
 
             if( len(most_prob_vat_values) == 0 ):
+                q=1
                 print('havent vat value(most_prob_vat_values)')
             else:
                 vat_value,percentage_values = percentage_and_vat_filter(texts, most_prob_vat_values)
@@ -101,6 +105,8 @@ def extract_vat_and_precentage(momsList,texts):
                 vat_value_list.append(vat_value)
                 precentage_value_list.append(percentage_values)
 
+    if( vat_value_list == []):
+        print('non')
     return vat_value_list,precentage_value_list            
 
 # search moms word in receipt
@@ -146,6 +152,7 @@ def find_near_by_values(topLeft, verticalWordList):
     most_prob_vat_values = []
     
     if( margin >= 40):
+        q=1
         print(margin)
         print('+margin not valid')
     else:
@@ -169,16 +176,19 @@ def sort_list(verticalWordList):
 
 def vatFilter(word):
     i=0
+    k=0
     valid = True
     while(len(word) != i):
-        if( word[i].isnumeric() or word[i] == ',' or word[i] == '.'):
-            k=0
+        if( word[i].isnumeric()):
+            q=0
+        elif( word[i] == ',' or word[i] == '.'):    
+            k=k+1
         else:
             # print("not valid")
             valid = False     
         i=i+1
-    if( i<=1 ):
-        valid = False
+    if( i<=1 or k>=2):
+        valid = False  
     return valid
 
 def precentageFilter(word):
@@ -243,6 +253,8 @@ def draw_line(spoint,epoint):
     line_color = (247, 7, 7)
     d.line([spoint,epoint], fill=line_color, width=2)
 
-    im.save("drawn_grid.png")
+    im.save("drawn_grid.png")    
 
-detect_words(IMG_FILE)            
+detect_words(IMG_FILE)
+
+
