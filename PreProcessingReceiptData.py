@@ -11,7 +11,7 @@ from google.cloud import vision
 from PIL import Image, ImageDraw
 # 530516 551791 551838.PNG
 GOOGLE_API_KEY = "F:/project/CNN_test/data/google_cloud_api_key.txt"
-IMG_FILE = "F:/project/CNN_test/data/receipts/virtical/1 (27).png"
+IMG_FILE = "F:/project/CNN_test/data/receipts/virtical/1 (145).png"
 
 # Provide authentication credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GOOGLE_API_KEY
@@ -26,7 +26,7 @@ def detect_words(path):
 
     response = client.text_detection(image=image)
     texts = response.text_annotations
-
+    texts = texts[1:]
     momsList = searchMoms(texts)
 
     vat_value_col = []
@@ -51,17 +51,20 @@ def detect_words(path):
                     vat_value_col = vat_value_list[i]
                     precentage_value_col = precentage_value_list[i]
 
-        for i in range(0,len(vat_value_col)):
-            print("error")
-            print(precentage_value_col[i])
-            if( re.search( r'(total)', precentage_value_col[i], re.I) or precentage_value_col[i] == 'Tot' ):
-                print('+')
-            else:
+        try:
+            for i in range(0,len(vat_value_col)):
+                print("error")
                 print(precentage_value_col[i])
-                result_vat.append(vat_value_col[i])
-                result_precentage.append(precentage_value_col[i])
-        print(result_vat)
-        print(result_precentage)   
+                if( re.search( r'(total)', precentage_value_col[i], re.I) or re.search( r'(tot)', precentage_value_col[i], re.I) ):
+                    print('+')
+                else:
+                    print(precentage_value_col[i])
+                    result_vat.append(vat_value_col[i])
+                    result_precentage.append(precentage_value_col[i])
+            print(result_vat)
+            print(result_precentage)  
+        except Exception:
+            pass     
 
 def extract_vat_and_precentage(momsList,texts):
     vat_value_list = []
@@ -69,6 +72,8 @@ def extract_vat_and_precentage(momsList,texts):
 
     for moms in momsList:
         print('-------start-------')
+        # print(moms)
+        # print('-------------------')
         moms = moms.bounding_poly
 
         bottomLeft = (moms.vertices[0].x,moms.vertices[0].y)
@@ -106,7 +111,7 @@ def extract_vat_and_precentage(momsList,texts):
                 precentage_value_list.append(percentage_values)
 
     if( vat_value_list == []):
-        print('non')
+        print('none')
     return vat_value_list,precentage_value_list            
 
 # search moms word in receipt
@@ -128,7 +133,7 @@ def searchMoms(texts):
 
 def find_vertical_words(texts, topLeft, topRight, bottomLeft, ymax):
     verticalWordList = []
-    
+    print('-ver-')
     for text in texts:
         boundry = text.bounding_poly
 
@@ -143,6 +148,7 @@ def find_vertical_words(texts, topLeft, topRight, bottomLeft, ymax):
         if( ( (topLeft[0] - 15) <= tempTopLeft[0]) and ( (topRight[0] + 25) >= tempTopRight[0]) and bottomLeft[1] <= tempBottomLeft[1] and vatFilter(text.description) ):            
             print(text.description)
             verticalWordList.append(text)
+    print('-end-')
     return verticalWordList
 
 def find_near_by_values(topLeft, verticalWordList):
@@ -197,6 +203,8 @@ def precentageFilter(word):
         valid = False
     elif( word == 'MOMS'):
         valid = False
+    else:
+         valid = vatFilter(word)   
     return valid
 
 def percentage_and_vat_filter(texts, most_prob_vat_values):
